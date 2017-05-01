@@ -18,8 +18,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static android.R.attr.id;
-
 public class MainActivity extends AppCompatActivity implements DevicesFragment.OnFragmentInteractionListener, ConnectFragmentParent.OnFragmentInteractionListener {
 
     @BindView(R.id.frame)
@@ -100,16 +98,19 @@ public class MainActivity extends AppCompatActivity implements DevicesFragment.O
             mFragmentSwapper.swapToFragment(DevicesFragment.class, bundle, R.id.frame, false, true);
         }
 
+
         @Override
-        public void showDeviceDetails(String deviceName, int id) {
+        public void showDeviceDetails(String deviceName0, String deviceName1) {
             Bundle bundle = new Bundle();
-            bundle.putString(ConnectFragmentParent.NAME1, deviceName);
+            bundle.putString(ConnectFragmentParent.NAME0, deviceName0);
+            bundle.putString(ConnectFragmentParent.NAME1, deviceName1);
            mConnectFragmentParent = (ConnectFragmentParent) mFragmentSwapper.swapToFragment(ConnectFragmentParent.class, bundle, R.id.frame, true, true);
 //            mFragmentSwapper.addInitialFragment(mConnectFragmentParent, bundle, R.id.mFrame, true, CONNECT_FRAGMENT);
         }
 
+
         @Override
-        public void onConnectionSuccess() {
+        public void onConnectionSuccess(int id) {
             String message = "connection sucess";
             ToastOnUIThread(message);
             mMainViewModel.showVersion(id);
@@ -120,14 +121,14 @@ public class MainActivity extends AppCompatActivity implements DevicesFragment.O
                     mProgress.setVisibility(View.GONE);
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
-                    mConnectFragmentParent.setUIState(ConnectFragmentParent.State.CONNECTED);
+                    mConnectFragmentParent.setUIState(ConnectFragmentParent.State.CONNECTED, id);
                 }
             });
 
         }
 
         @Override
-        public void onConnectionError() {
+        public void onConnectionError(int id) {
             String message = "connection failed";
             ToastOnUIThread(message);
 
@@ -142,12 +143,12 @@ public class MainActivity extends AppCompatActivity implements DevicesFragment.O
         }
 
         @Override
-        public void onDisconnectFailed() {
+        public void onDisconnectFailed(int id) {
             ToastOnUIThread("diconnection failed");
         }
 
         @Override
-        public void onUpdateUIFromLOD(String hex, String binary) {
+        public void onUpdateUIFromLOD(String hex, String binary, int id) {
             MainActivity.this.runOnUiThread(new Runnable() {
                 public void run() {
                     mConnectFragmentParent.updateUILOD(hex, binary, id);
@@ -157,26 +158,26 @@ public class MainActivity extends AppCompatActivity implements DevicesFragment.O
         }
 
         @Override
-        public void onUpdateUIFromVersion(String hex, String payload) {
+        public void onUpdateUIFromVersion(String hex, String payload, int id) {
             MainActivity.this.runOnUiThread(new Runnable() {
                 public void run() {
-                    mConnectFragmentParent.updateUIVersion(hex, payload);
+                    mConnectFragmentParent.updateUIVersion(hex, payload, id);
                 }
             });
         }
 
         @Override
-        public void onStopError(String error) {
+        public void onStopError(String error, int id) {
             MainActivity.this.runOnUiThread(() -> {
-                mConnectFragmentParent.setUIState(ConnectFragmentParent.State.STARTED);
+                mConnectFragmentParent.setUIState(ConnectFragmentParent.State.STARTED, id);
                 Toast.makeText(MainActivity.this, error, Toast.LENGTH_LONG).show();
             });
         }
 
         @Override
-        public void onStartError(String error) {
+        public void onStartError(String error, int id) {
             MainActivity.this.runOnUiThread(() -> {
-                mConnectFragmentParent.setUIState(ConnectFragmentParent.State.CONNECTED);
+                mConnectFragmentParent.setUIState(ConnectFragmentParent.State.CONNECTED, id);
                 Toast.makeText(MainActivity.this, error, Toast.LENGTH_LONG).show();
             });
         }

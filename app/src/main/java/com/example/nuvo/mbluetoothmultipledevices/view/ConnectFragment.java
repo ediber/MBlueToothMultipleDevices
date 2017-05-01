@@ -23,9 +23,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.example.nuvo.mbluetoothmultipledevices.view.ConnectFragment.State.DISCONNECTED;
-import static com.example.nuvo.mbluetoothmultipledevices.view.ConnectFragment.State.STARTED;
-import static com.example.nuvo.mbluetoothmultipledevices.view.ConnectFragment.State.STOPPED;
+import static com.example.nuvo.mbluetoothmultipledevices.view.ConnectFragmentParent.State.DISCONNECTED;
+import static com.example.nuvo.mbluetoothmultipledevices.view.ConnectFragmentParent.State.STARTED;
+import static com.example.nuvo.mbluetoothmultipledevices.view.ConnectFragmentParent.State.STOPPED;
 
 
 public class ConnectFragment extends Fragment {
@@ -36,7 +36,8 @@ public class ConnectFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private String mName;
-    private State mState;
+    private ConnectFragmentParent.State mState;
+    private int mId;
 
     @BindView(R.id.connectName)
     TextView mNameView;
@@ -70,7 +71,6 @@ public class ConnectFragment extends Fragment {
 
 
 
-
     public ConnectFragment() {
         // Required empty public constructor
     }
@@ -85,6 +85,7 @@ public class ConnectFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mName = getArguments().getString(NAME);
+            mId = getArguments().getInt(ID);
         }
     }
 
@@ -105,21 +106,21 @@ public class ConnectFragment extends Fragment {
         setSpinners();
 
         mConnect.setOnClickListener((View v) -> {
-            mListener.onConnect();
+            mListener.onConnect(mId);
         });
 
         mDissconect.setOnClickListener((View v) -> {
-            mListener.onDisConnect();
+            mListener.onDisConnect(mId);
             setUIState(DISCONNECTED);
         });
 
         mStart.setOnClickListener((View v) -> {
-            mListener.onStartRequest(mSpinnerLevel.getSelectedItemPosition(), mSpinnerCurrent.getSelectedItemPosition());
+            mListener.onStartRequest(mSpinnerLevel.getSelectedItemPosition(), mSpinnerCurrent.getSelectedItemPosition(), mId);
             setUIState(STARTED);
         });
 
         mStop.setOnClickListener((View v) -> {
-            mListener.onStopRequest();
+            mListener.onStopRequest(mId);
             setUIState(STOPPED);
         });
 
@@ -128,10 +129,9 @@ public class ConnectFragment extends Fragment {
         return view;
     }
 
-
-
-
-
+    public void setListener(OnFragmentInteractionListener listener) {
+        this.mListener = listener;
+    }
 
     public void updateUILOD(String hex, String binary) {
         for (int i = 0; i < binary.length() / 2; i++) {
@@ -186,7 +186,7 @@ public class ConnectFragment extends Fragment {
         mSpinnerCurrent.setAdapter(currentArrayAdapter);
     }
 
-    public void setUIState(State state) {
+    public void setUIState(ConnectFragmentParent.State state) {
         switch (state){
             case DISCONNECTED:
                 mConnect.setEnabled(true);
@@ -238,8 +238,8 @@ public class ConnectFragment extends Fragment {
 
     @Override
     public void onStop() {
-        mListener.onStopRequest();
-        mListener.onDisConnect();
+        mListener.onStopRequest(mId);
+        mListener.onDisConnect(mId);
         setUIState(DISCONNECTED);
         super.onStop();
     }
@@ -247,20 +247,20 @@ public class ConnectFragment extends Fragment {
 
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onConnect();
+        void onConnect(int id);
 
-        void onDisConnect();
+        void onDisConnect(int id);
 
-        void onStartRequest(int selectedItemPosition, int selectedItemPosition1);
+        void onStartRequest(int selectedLevel, int selectedCurrent, int id);
 
-        void onStopRequest();
+        void onStopRequest(int id);
     }
 
-    public enum State{
+/*    public enum State{
         DISCONNECTED,
         CONNECTED,
         STARTED,
         STOPPED
-    }
+    }*/
 
 }

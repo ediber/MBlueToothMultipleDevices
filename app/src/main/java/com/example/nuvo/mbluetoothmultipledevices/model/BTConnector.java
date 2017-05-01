@@ -55,13 +55,13 @@ public class BTConnector {
     public void connect(SocketConnectedListener listener) {
         mConnectingThread = new ConnectingThread(new SocketConnectedListener() {
             @Override
-            public void onConnectionSuccess() {
-                listener.onConnectionSuccess();
+            public void onConnectionSuccess(int id) {
+                listener.onConnectionSuccess(mId);
             }
 
             @Override
-            public void onConnectionError() {
-                listener.onConnectionError();
+            public void onConnectionError(int id) {
+                listener.onConnectionError(mId);
             }
         });
 
@@ -133,7 +133,7 @@ public class BTConnector {
         try {
             outStream = mSocket.getOutputStream();
         } catch (IOException e) {
-            listener.onError("Error occurred when creating output stream");
+            listener.onError("Error occurred when creating output stream", mId);
             Log.e("tag", "Error occurred when creating output stream", e);
         }
 
@@ -143,7 +143,7 @@ public class BTConnector {
             }
 
         } catch (IOException e) {
-            listener.onError("Error occurred when sending data");
+            listener.onError("Error occurred when sending data", mId);
             Log.e("tag", "Error occurred when sending data", e);
         }
     }
@@ -169,11 +169,11 @@ public class BTConnector {
             try {
                 mSocket.connect();
                 Log.d(ConstantsUtil.CONNECTION_TAG + " 2", "socket connected");
-                listener.onConnectionSuccess();
+                listener.onConnectionSuccess(mId);
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.d(ConstantsUtil.CONNECTION_TAG + " 2", "socket connection error", e);
-                listener.onConnectionError();
+                listener.onConnectionError(mId);
             }
         }
 
@@ -201,7 +201,7 @@ public class BTConnector {
             try {
                 mSocket.close();
             } catch (IOException e) {
-                mListener.onDisconnectError();
+                mListener.onDisconnectError(mId);
             }
         }
     }
@@ -244,7 +244,7 @@ public class BTConnector {
                     Log.d(ConstantsUtil.GENERAL_TAG + " 1", "numBytes: " + numBytes);
 
                     mPacketsCounter ++;
-                    mListener.onReceived(buffer, numBytes, mPacketsCounter);
+                    mListener.onReceived(buffer, numBytes, mPacketsCounter, mId);
 
                 } catch (IOException e) {
                     Log.d(ConstantsUtil.GENERAL_TAG, "Input stream was disconnected", e);
@@ -284,20 +284,20 @@ public class BTConnector {
     }
 
     public interface SocketConnectedListener {
-        void onConnectionSuccess();
+        void onConnectionSuccess(int id);
 
-        void onConnectionError();
+        void onConnectionError(int id);
     }
 
     public interface SocketDisConnectListener {
-        void onDisconnectError();
+        void onDisconnectError(int id);
     }
 
     public interface MessageSentListener {
-        void onError(String error);
+        void onError(String error, int id);
     }
 
     public interface MessageReceivedListener {
-        void onReceived(byte[] mBuffer, int numBytes, int packetsCounter);
+        void onReceived(byte[] mBuffer, int numBytes, int packetsCounter, int id);
     }
 }

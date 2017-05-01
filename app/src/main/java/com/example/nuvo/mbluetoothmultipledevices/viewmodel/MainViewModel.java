@@ -124,25 +124,29 @@ public class MainViewModel extends BaseObservable implements ViewModel {
     }*/
 
     public void onShow(List<Integer> mSelectedIndexes) {
+        String deviceName0 = "";
+        String deviceName1 = "";
         mConnectors.get(0).setSelectedDevice(mSelectedIndexes.get(0));
-        mListener.showDeviceDetails(mConnectors.get(0).getSelectedName(), 0);
+        deviceName0 = mConnectors.get(0).getSelectedName();
 
         if(mConnectors.size() == 2){   // 2 BT devices selected
             mConnectors.get(1).setSelectedDevice(mSelectedIndexes.get(1));
-            mListener.showDeviceDetails(mConnectors.get(1).getSelectedName(), 1);
+            deviceName1 = mConnectors.get(1).getSelectedName();
         }
+        mListener.showDeviceDetails(deviceName0, deviceName1);
+
     }
 
     public void connect(int id) {
         mConnectors.get(id).connect(new BTConnector.SocketConnectedListener() {
             @Override
-            public void onConnectionSuccess() {
-                mListener.onConnectionSuccess();
+            public void onConnectionSuccess(int id) {
+                mListener.onConnectionSuccess(id);
             }
 
             @Override
-            public void onConnectionError() {
-                mListener.onConnectionError();
+            public void onConnectionError(int id) {
+                mListener.onConnectionError(id);
             }
         });
 
@@ -152,8 +156,8 @@ public class MainViewModel extends BaseObservable implements ViewModel {
         setPacketCounter("0");
         mConnectors.get(id).disconnect(new BTConnector.SocketDisConnectListener() {
             @Override
-            public void onDisconnectError() {
-                mListener.onDisconnectFailed();
+            public void onDisconnectError(int id) {
+                mListener.onDisconnectFailed(id);
             }
         });
     }
@@ -166,13 +170,13 @@ public class MainViewModel extends BaseObservable implements ViewModel {
 
         mConnectors.get(id).send(sendMessage, new BTConnector.MessageSentListener() {
             @Override
-            public void onError(String error) {
-                mListener.onStartError(error);
+            public void onError(String error, int id) {
+                mListener.onStartError(error, id);
             }
         });
 
-        mConnectors.get(id).listenToIncomingMessages((buffer, numBytes, packetsCounter) -> {
-            parseMessage(buffer, numBytes, packetsCounter);
+        mConnectors.get(id).listenToIncomingMessages((buffer, numBytes, packetsCounter, id1) -> {
+            parseMessage(buffer, numBytes, packetsCounter, id1);
         });
 
         initializeStartTime();
@@ -183,7 +187,7 @@ public class MainViewModel extends BaseObservable implements ViewModel {
         setStartTime(dateToStr(mDate, "HH:mm:ss"));
     }
 
-    private void parseMessage(byte[] buffer, int numBytes, int packetsCounter) {
+    private void parseMessage(byte[] buffer, int numBytes, int packetsCounter, int id) {
         List<Integer> positiveBuffer;
         positiveBuffer = ConvertUtil.bytesToPositive(buffer);
 
@@ -205,11 +209,11 @@ public class MainViewModel extends BaseObservable implements ViewModel {
                     setElapsedTime(diffStr);
                     double transferRate = (double)mPacketCounter / diffLong * 1000;
                     setTransferRate(String.format("%.1f", transferRate));
-                    mListener.onUpdateUIFromLOD(hex, payload);
+                    mListener.onUpdateUIFromLOD(hex, payload, id);
                     break;
 
                 case VERSION:
-                    mListener.onUpdateUIFromVersion(hex, payload);
+                    mListener.onUpdateUIFromVersion(hex, payload, id);
                     break;
             }
 
@@ -222,8 +226,8 @@ public class MainViewModel extends BaseObservable implements ViewModel {
         message.setStop();
         mConnectors.get(id).send(message, new BTConnector.MessageSentListener() {
             @Override
-            public void onError(String error) {
-                mListener.onStopError(error);
+            public void onError(String error, int id) {
+                mListener.onStopError(error, id);
             }
         });
         mConnectors.get(id).clearPacketsCounter();
@@ -234,13 +238,13 @@ public class MainViewModel extends BaseObservable implements ViewModel {
         message.setStart();
         mConnectors.get(id).send(message, new BTConnector.MessageSentListener() {
             @Override
-            public void onError(String error) {
+            public void onError(String error, int id) {
 
             }
         });
 
-        mConnectors.get(id).listenToIncomingMessages((buffer, numBytes, packetsCounter) -> {
-            parseMessage(buffer, numBytes, packetsCounter);
+        mConnectors.get(id).listenToIncomingMessages((buffer, numBytes, packetsCounter, id1) -> {
+            parseMessage(buffer, numBytes, packetsCounter, id1);
         });
     }
 
@@ -263,21 +267,21 @@ public class MainViewModel extends BaseObservable implements ViewModel {
     public interface viewModelListener {
         void onShowPairedDevices(List<String> deviceNames);
 
-        void showDeviceDetails(String deviceName1, int id);
+        void showDeviceDetails(String deviceName0, String deviceName1);
 
-        void onConnectionSuccess();
+        void onConnectionSuccess(int id);
 
-        void onConnectionError();
+        void onConnectionError(int id);
 
-        void onDisconnectFailed();
+        void onDisconnectFailed(int id);
 
-        void onUpdateUIFromLOD(String hex, String binary);
+        void onUpdateUIFromLOD(String hex, String binary, int id);
 
-        void onUpdateUIFromVersion(String hex, String payload);
+        void onUpdateUIFromVersion(String hex, String payload, int id);
 
-        void onStopError(String error);
+        void onStopError(String error, int id);
 
-        void onStartError(String error);
+        void onStartError(String error, int id);
     }
 
 
