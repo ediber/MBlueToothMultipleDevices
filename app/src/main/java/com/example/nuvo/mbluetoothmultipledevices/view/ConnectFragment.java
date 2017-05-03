@@ -69,6 +69,9 @@ public class ConnectFragment extends Fragment {
     @BindView(R.id.indicatorsLayoutNegative)
     LinearLayout mIndicatorsLayoutNegative;
 
+    @BindView(R.id.progressBar1)
+    View mProgress;
+
 
 
     public ConnectFragment() {
@@ -106,6 +109,7 @@ public class ConnectFragment extends Fragment {
         setSpinners();
 
         mConnect.setOnClickListener((View v) -> {
+            toShowProgress(true);
             mListener.onConnect(mId);
         });
 
@@ -206,6 +210,8 @@ public class ConnectFragment extends Fragment {
                 mStop.setEnabled(false);
                 mSpinnerLevel.setEnabled(true);
                 mSpinnerCurrent.setEnabled(true);
+
+                toShowProgress(false);
                 break;
 
             case STARTED:
@@ -227,6 +233,15 @@ public class ConnectFragment extends Fragment {
                 setNeutrall(mIndicatorsLayoutPositive);
                 setNeutrall(mIndicatorsLayoutNegative);
                 break;
+        }
+    }
+
+    private void toShowProgress(boolean show) {
+        if(show){
+            mProgress.setVisibility(View.VISIBLE);
+            mProgress.bringToFront();
+        } else { // hide
+            mProgress.setVisibility(View.GONE);
         }
     }
 

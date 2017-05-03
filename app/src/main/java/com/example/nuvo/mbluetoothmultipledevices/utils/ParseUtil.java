@@ -62,9 +62,7 @@ public class ParseUtil {
 
     private static List<Integer> deepCopy(List<Integer> lst) {
         List<Integer> ans = new ArrayList<>();
-        for (Integer element : lst) {
-            ans.add(element);
-        }
+        ans.addAll(lst);
         return ans;
     }
 

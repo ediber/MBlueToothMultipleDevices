@@ -162,7 +162,7 @@ public class MainViewModel extends BaseObservable implements ViewModel {
         });
     }
 
-    public void start(int id, int level, int current) {
+    public void start(int level, int current, int id) {
         LODSendMessage sendMessage = new LODSendMessage();
         sendMessage.setStart();
         sendMessage.addPayload(level);

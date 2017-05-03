@@ -3,8 +3,6 @@ package com.example.nuvo.mbluetoothmultipledevices.view;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -22,8 +20,8 @@ public class MainActivity extends AppCompatActivity implements DevicesFragment.O
 
     @BindView(R.id.frame)
     FrameLayout mFrame;
-    @BindView(R.id.progressBar)
-    View mProgress;
+//    @BindView(R.id.progressBar)
+//    View mProgress;
 
     private FragmentSwapper mFragmentSwapper;
     private MainViewModel mMainViewModel;
@@ -66,9 +64,6 @@ public class MainActivity extends AppCompatActivity implements DevicesFragment.O
 
     @Override
     public void onConnect(int id) {
-        mProgress.setVisibility(View.VISIBLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
         mMainViewModel.connect(id);
     }
 
@@ -118,8 +113,6 @@ public class MainActivity extends AppCompatActivity implements DevicesFragment.O
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mProgress.setVisibility(View.GONE);
-                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
                     mConnectFragmentParent.setUIState(ConnectFragmentParent.State.CONNECTED, id);
                 }
@@ -135,8 +128,7 @@ public class MainActivity extends AppCompatActivity implements DevicesFragment.O
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mProgress.setVisibility(View.GONE);
-                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    mConnectFragmentParent.setUIState(ConnectFragmentParent.State.DISCONNECTED, id);
                 }
             });
 
