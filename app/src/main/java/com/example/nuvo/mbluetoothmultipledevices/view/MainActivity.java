@@ -140,10 +140,12 @@ public class MainActivity extends AppCompatActivity implements DevicesFragment.O
         }
 
         @Override
-        public void onUpdateUIFromLOD(String hex, String binary, int id) {
+        public void onUpdateUIFromLOD(String hex, String binary, int id, ArrayList<Integer> packetCounters, ArrayList<String> transferRates,
+                                      ArrayList<String> startTimes, ArrayList<String> elapsedTimes) {
             MainActivity.this.runOnUiThread(new Runnable() {
                 public void run() {
-                    mConnectFragmentParent.updateUILOD(hex, binary, id);
+                    mConnectFragmentParent.updateUILOD(hex, binary, id, packetCounters, transferRates,
+                             startTimes,  elapsedTimes);
                 }
             });
 

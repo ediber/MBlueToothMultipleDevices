@@ -189,7 +189,7 @@ public class BTConnector {
         }
     }
 
-    private class DisconnectingThread extends Thread {
+/*    private class DisconnectingThread extends Thread {
         private SocketDisConnectListener mListener;
 
         public DisconnectingThread(BluetoothSocket mSocket, SocketDisConnectListener mListener) {
@@ -204,7 +204,7 @@ public class BTConnector {
                 mListener.onDisconnectError(mId);
             }
         }
-    }
+    }*/
 
     public class AlreadyConnectedThread extends Thread {
 

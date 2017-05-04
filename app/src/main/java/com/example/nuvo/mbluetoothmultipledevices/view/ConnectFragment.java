@@ -36,7 +36,6 @@ public class ConnectFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private String mName;
-    private ConnectFragmentParent.State mState;
     private int mId;
 
     @BindView(R.id.connectName)
@@ -71,6 +70,18 @@ public class ConnectFragment extends Fragment {
 
     @BindView(R.id.progressBar1)
     View mProgress;
+
+    @BindView(R.id.recievedPackets)
+    TextView mRecievedPackets;
+
+    @BindView(R.id.effectiveTransferRate)
+    TextView mEffectiveTransferRate;
+
+    @BindView(R.id.startTime)
+    TextView mStartTime;
+
+    @BindView(R.id.elapsedTime)
+    TextView mElapsedTime;
 
 
 
@@ -137,40 +148,31 @@ public class ConnectFragment extends Fragment {
         this.mListener = listener;
     }
 
-    public void updateUILOD(String hex, String binary) {
+    public void updateUILOD(String hex, String binary, ArrayList<Integer> packetCounters, ArrayList<String> transferRates,
+                            ArrayList<String> startTimes, ArrayList<String> elapsedTimes) {
         for (int i = 0; i < binary.length() / 2; i++) {
             if (binary.charAt(i) == '0') { // attached
-
                 mIndicatorsLayoutPositive.getChildAt(i).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.circle_green));
-
-//                Log.d(ConstantsUtil.GENERAL_TAG, "positive 0, green");
             } else {
-
                 mIndicatorsLayoutPositive.getChildAt(i).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.circle_red));
-
-//                Log.d(ConstantsUtil.GENERAL_TAG, "positive 1, red");
             }
-//            Log.d(ConstantsUtil.GENERAL_TAG, "index to circle positive: " + i);
         }
 
         int layoutIndex = 0;
         for (int i = binary.length() / 2; i < binary.length(); i++) {
             if (binary.charAt(i) == '0') { // attached
-
                 mIndicatorsLayoutNegative.getChildAt(layoutIndex).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.circle_green));
-
-//                Log.d(ConstantsUtil.GENERAL_TAG, "negative 0, green");
             } else {
-
                 mIndicatorsLayoutNegative.getChildAt(layoutIndex).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.circle_red));
-
-//                Log.d(ConstantsUtil.GENERAL_TAG, "negative 1, red");
             }
-
-//            Log.d(ConstantsUtil.GENERAL_TAG, "index to circle negative: " + i);
 
             layoutIndex++;
         }
+
+        mRecievedPackets.setText(packetCounters.get(mId) + "");
+        mEffectiveTransferRate.setText(transferRates.get(mId));
+        mStartTime.setText(startTimes.get(mId));
+        mElapsedTime.setText(elapsedTimes.get(mId));
     }
 
     public void updateUIVersion(String hex, String payload) {

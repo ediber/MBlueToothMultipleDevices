@@ -27,7 +27,6 @@ public class ConnectFragmentParent extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private String mName0;
-    private State mState;
     private FragmentSwapper mFragmentSwapper;
     private List<ConnectFragment> mFragments;
     private String mName1;
@@ -97,8 +96,9 @@ public class ConnectFragmentParent extends Fragment {
         mListener = null;
     }
 
-    public void updateUILOD(String hex, String binary, int id) {
-        mFragments.get(id).updateUILOD(hex, binary);
+    public void updateUILOD(String hex, String binary, int id, ArrayList<Integer> packetCounters, ArrayList<String> transferRates, ArrayList<String> startTimes, ArrayList<String> elapsedTimes) {
+        mFragments.get(id).updateUILOD(hex, binary,
+                packetCounters, transferRates, startTimes, elapsedTimes);
     }
 
     public void updateUIVersion(String hex, String payload, int id) {

@@ -14,6 +14,7 @@ import com.example.nuvo.mbluetoothmultipledevices.utils.DateUtil;
 import com.example.nuvo.mbluetoothmultipledevices.utils.ParseUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -40,6 +41,13 @@ public class MainViewModel extends BaseObservable implements ViewModel {
     private MainViewModel(Activity activity, viewModelListener listener) {
         mActivity = activity;
         mListener = listener;
+
+        // add 2 garbage values to avoid exception
+        mPacketCounters = new ArrayList<>(Arrays.asList(-99, -99));
+        mStartTimes = new ArrayList<>(Arrays.asList("-99", "-99"));
+        mElapsedTimes = new ArrayList<>(Arrays.asList("-99", "-99"));
+        mDates = new ArrayList<>(Arrays.asList(new Date(), new Date()));
+        mTransferRates = new ArrayList<>(Arrays.asList("-99", "-99"));
     }
 
     public static MainViewModel getInstance(Activity activity, viewModelListener listener) {
@@ -203,7 +211,7 @@ public class MainViewModel extends BaseObservable implements ViewModel {
                     setElapsedTime(diffStr, id);
                     double transferRate = (double) mPacketCounters.get(id) / diffLong * 1000;
                     setTransferRate(String.format("%.1f", transferRate), id);
-                    mListener.onUpdateUIFromLOD(hex, payload, id);
+                    mListener.onUpdateUIFromLOD(hex, payload, id, mPacketCounters, mTransferRates, mStartTimes, mElapsedTimes);
                     break;
 
                 case VERSION:
@@ -269,7 +277,8 @@ public class MainViewModel extends BaseObservable implements ViewModel {
 
         void onDisconnectFailed(int id);
 
-        void onUpdateUIFromLOD(String hex, String binary, int id);
+        void onUpdateUIFromLOD(String hex, String binary, int id, ArrayList<Integer> packetCounters, ArrayList<String> transferRates,
+                               ArrayList<String> startTimes, ArrayList<String> elapsedTimes);
 
         void onUpdateUIFromVersion(String hex, String payload, int id);
 
