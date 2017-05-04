@@ -2,10 +2,8 @@ package com.example.nuvo.mbluetoothmultipledevices.viewmodel;
 
 import android.app.Activity;
 import android.databinding.BaseObservable;
-import android.databinding.Bindable;
 import android.util.Log;
 
-import com.example.nuvo.mbluetoothmultipledevices.BR;
 import com.example.nuvo.mbluetoothmultipledevices.model.BTConnector;
 import com.example.nuvo.mbluetoothmultipledevices.model.LODSendMessage;
 import com.example.nuvo.mbluetoothmultipledevices.model.ReceiveMessage;
@@ -29,14 +27,14 @@ public class MainViewModel extends BaseObservable implements ViewModel {
 
     private Activity mActivity;
     private viewModelListener mListener;
-//    private BTConnector mConnector0;
-//    private BTConnector mConnector1;
-    private int mPacketCounter;
-    private String mStartTime;
-    private String mElapsedTime;
-    private Date mDate;
-    private String mTransferRate;
     private ArrayList<BTConnector> mConnectors;
+
+    private ArrayList<Integer> mPacketCounters;
+    private ArrayList<String> mStartTimes;
+    private ArrayList<String> mElapsedTimes;
+    private ArrayList<Date> mDates;
+    private ArrayList<String> mTransferRates;
+
 
 
     private MainViewModel(Activity activity, viewModelListener listener) {
@@ -78,50 +76,46 @@ public class MainViewModel extends BaseObservable implements ViewModel {
         mConnectors.get(1).showPairedDevicesIfBTEnabled(mActivity, null); // to initialize paired devices list in BTConnector
     }
 
-    @Bindable
-    public String getPacketCounter() {
-        return mPacketCounter + "";
+//    @Bindable
+//    public String getPacketCounter() {
+//        return mPacketCounters + "";
+//    }
+
+    public void setPacketCounter(String packetCounter, int id) {
+        this.mPacketCounters.set(id, Integer.parseInt(packetCounter));
+//        notifyPropertyChanged(BR.packetCounter);
     }
 
-    public void setPacketCounter(String packetCounter) {
-        this.mPacketCounter = Integer.parseInt(packetCounter);
-        notifyPropertyChanged(BR.packetCounter);
+//    @Bindable
+//    public String getStartTime() {
+//        return mStartTimes;
+//    }
+
+    public void setStartTime(String startTime, int id) {
+        this.mStartTimes.set(id, startTime);
+//        notifyPropertyChanged(BR.startTime);
     }
 
-    @Bindable
-    public String getStartTime() {
-        return mStartTime;
-    }
-
-    public void setStartTime(String mStartTime) {
-        this.mStartTime = mStartTime;
-        notifyPropertyChanged(BR.startTime);
-    }
-
-    @Bindable
+/*    @Bindable
     public String getElapsedTime() {
-        return mElapsedTime;
-    }
-
-    public void setElapsedTime(String mElapsedTime) {
-        this.mElapsedTime = mElapsedTime;
-        notifyPropertyChanged(BR.elapsedTime);
-    }
-
-    @Bindable
-    public String getTransferRate() {
-        return mTransferRate;
-    }
-
-    public void setTransferRate(String mTransferRate) {
-        this.mTransferRate = mTransferRate;
-        notifyPropertyChanged(BR.transferRate);
-    }
-
-    /*public void onDeviceSelected(int position) {
-        mConnector0.setSelectedDevice(position);
-        mListener.showDeviceDetails(mConnector0.getSelectedName(), mConnector1.getSelectedName());
+        return mElapsedTimes;
     }*/
+
+    public void setElapsedTime(String elapsedTime, int id) {
+        this.mElapsedTimes.set(id, elapsedTime);
+//        notifyPropertyChanged(BR.elapsedTime);
+    }
+
+   /* @Bindable
+    public String getTransferRate() {
+        return mTransferRates;
+    }
+*/
+    public void setTransferRate(String transferRate, int id) {
+        this.mTransferRates.set(id, transferRate);
+//        notifyPropertyChanged(BR.transferRate);
+    }
+
 
     public void onShow(List<Integer> mSelectedIndexes) {
         String deviceName0 = "";
@@ -153,7 +147,7 @@ public class MainViewModel extends BaseObservable implements ViewModel {
     }
 
     public void disConnect(int id) {
-        setPacketCounter("0");
+        setPacketCounter("0", id);
         mConnectors.get(id).disconnect(new BTConnector.SocketDisConnectListener() {
             @Override
             public void onDisconnectError(int id) {
@@ -179,12 +173,12 @@ public class MainViewModel extends BaseObservable implements ViewModel {
             parseMessage(buffer, numBytes, packetsCounter, id1);
         });
 
-        initializeStartTime();
+        initializeStartTime(id);
     }
 
-    private void initializeStartTime() {
-        mDate = getCurrentDate();
-        setStartTime(dateToStr(mDate, "HH:mm:ss"));
+    private void initializeStartTime(int id) {
+        mDates.set(id, getCurrentDate());
+        setStartTime(dateToStr(mDates.get(id), "HH:mm:ss"), id);
     }
 
     private void parseMessage(byte[] buffer, int numBytes, int packetsCounter, int id) {
@@ -203,12 +197,12 @@ public class MainViewModel extends BaseObservable implements ViewModel {
             switch (message.getmType()) {
                 case LOD:
 //                Log.d(ConstantsUtil.GENERAL_TAG, " message: " + ConvertUtil.decimalToHexString(message));
-                    setPacketCounter(packetsCounter + "");
-                    long diffLong = DateUtil.differenceBetweenDatesLong(mDate, getCurrentDate());
+                    setPacketCounter(packetsCounter + "", id);
+                    long diffLong = DateUtil.differenceBetweenDatesLong(mDates.get(id), getCurrentDate());
                     String diffStr = DateUtil.longToStr(diffLong, "mm:ss");
-                    setElapsedTime(diffStr);
-                    double transferRate = (double)mPacketCounter / diffLong * 1000;
-                    setTransferRate(String.format("%.1f", transferRate));
+                    setElapsedTime(diffStr, id);
+                    double transferRate = (double) mPacketCounters.get(id) / diffLong * 1000;
+                    setTransferRate(String.format("%.1f", transferRate), id);
                     mListener.onUpdateUIFromLOD(hex, payload, id);
                     break;
 
